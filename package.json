@@ -1,0 +1,21 @@
+{
+  "name": "newgen-api",
+  "version": "1.0.0",
+  "description": "Express.js API for Serverless deployment on Vercel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "vercel-build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.x"
+  },
+  "keywords": ["express", "cors", "serverless", "vercel", "api"],
+  "license": "MIT"
+}

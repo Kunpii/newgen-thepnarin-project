@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="th" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบจัดการโปรเจค</title>
+
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-radius: 1rem;
+      --border-light: #e2e8f0;
+      --text-muted: #94a3b8;
+      --bg-light: #f5f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: var(--bg-light);
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* ─── Navbar ─── */
+    .navbar {
+      background: #fff !important;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .navbar-brand i { font-size: 1.4rem; }
+
+    .mode-switch .form-check-input {
+      width: 3rem;
+      height: 1.5rem;
+      cursor: pointer;
+    }
+    .mode-switch .form-check-input:checked {
+      background-color: #198754;
+      border-color: #198754;
+    }
+    .mode-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      min-width: 38px;
+    }
+
+    /* ─── Summary Cards ─── */
+    .summary-card {
+      border: none;
+      border-radius: var(--card-radius);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .summary-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    .summary-card .card-body { padding: 1.25rem; }
+    .summary-card .summary-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .summary-card .summary-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+    .summary-card .summary-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .summary-card .summary-value small {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .icon-blue   { background: #eef2ff; color: #4f46e5; }
+    .icon-yellow { background: #fef9c3; color: #ca8a04; }
+    .icon-green  { background: #d1fae5; color: #059669; }
+    .icon-red    { background: #fee2e2; color: #dc2626; }
+
+    /* ─── Generic Card ─── */
+    .card {
+      border: none;
+      border-radius: var(--card-radius);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+    }
+
+    /* ─── Form ─── */
+    .form-control, .form-select {
+      border-radius: 0.6rem;
+      border: 1.5px solid var(--border-light);
+      padding: 0.55rem 0.85rem;
+      font-size: 0.88rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    }
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 0.25rem;
+    }
+    .form-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .tag-input-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0.4rem 0.6rem;
+      border: 1.5px solid var(--border-light);
+      border-radius: 0.6rem;
+      min-height: 42px;
+      cursor: text;
+      transition: border-color 0.2s;
+    }
+    .tag-input-wrapper:focus-within {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    }
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #eef2ff;
+      color: #4f46e5;
+      padding: 0.15rem 0.6rem;
+      border-radius: 2rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .tag-badge .tag-remove {
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+    .tag-badge .tag-remove:hover { opacity: 1; }
+    .tag-input-inline {
+      border: none !important;
+      outline: none !important;
+      flex: 1;
+      min-width: 80px;
+      padding: 0.15rem 0;
+      font-size: 0.88rem;
+      background: transparent;
+    }
+
+    /* ─── Project Card ─── */
+    .project-card {
+      border: none;
+      border-radius: var(--card-radius);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+    .project-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    }
+    .project-card .card-body { padding: 1.25rem; }
+    .project-card .project-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 0.3rem;
+    }
+    .project-card .project-desc {
+      color: #64748b;
+      font-size: 0.85rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0.6rem;
+    }
+    .project-card .project-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .project-card .project-meta i { margin-right: 0.25rem; }
+
+    .progress-thin { height: 6px; border-radius: 3px; }
+    .progress-thin .progress-bar { border-radius: 3px; }
+
+    .badge-status {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.25rem 0.65rem;
+      border-radius: 2rem;
+    }
+    .badge-priority {
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.2rem 0.55rem;
+      border-radius: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* Priority colours */
+    .priority-low     { background: #d1fae5; color: #065f46; }
+    .priority-medium  { background: #dbeafe; color: #1e40af; }
+    .priority-high    { background: #fed7aa; color: #9a3412; }
+    .priority-critical{ background: #fecaca; color: #991b1b; }
+
+    /* Status colours */
+    .status-planning    { background: #e0e7ff; color: #3730a3; }
+    .status-in_progress { background: #fef9c3; color: #854d0e; }
+    .status-on_hold     { background: #fed7aa; color: #9a3412; }
+    .status-completed   { background: #d1fae5; color: #065f46; }
+    .status-cancelled   { background: #e2e8f0; color: #475569; }
+
+    /* ─── Task Modal ─── */
+    .task-item {
+      border: 1px solid var(--border-light);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      transition: background 0.15s;
+    }
+    .task-item:hover { background: #f8fafc; }
+    .task-item .task-title {
+      font-weight: 500;
+      font-size: 0.92rem;
+    }
+    .task-item .task-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .task-item .task-actions .btn {
+      padding: 0.15rem 0.45rem;
+      font-size: 0.75rem;
+    }
+
+    /* Status badges for tasks */
+    .ts-todo        { background: #f1f5f9; color: #475569; }
+    .ts-in_progress { background: #dbeafe; color: #1e40af; }
+    .ts-review      { background: #fef9c3; color: #854d0e; }
+    .ts-done        { background: #d1fae5; color: #065f46; }
+
+    /* ─── Filters ─── */
+    .filter-pills .btn {
+      border-radius: 2rem;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.9rem;
+      border: 1.5px solid var(--border-light);
+      color: #64748b;
+      background: #fff;
+    }
+    .filter-pills .btn.active {
+      background: #667eea;
+      border-color: #667eea;
+      color: #fff;
+    }
+    .filter-pills .btn:hover:not(.active) {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .search-box {
+      position: relative;
+    }
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    .search-box input {
+      padding-left: 36px;
+    }
+
+    /* ─── Empty State ─── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 1rem; }
+
+    /* ─── Toast ─── */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .summary-card .summary-value { font-size: 1.3rem; }
+      .project-card .card-body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ Toast Container ═══ -->
+  <div class="toast-container"></div>
+
+  <!-- ═══ Navbar ═══ -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">
+        <i class="bi bi-kanban text-primary me-2"></i>
+        ระบบจัดการโปรเจค
+      </a>
+
+      <div class="d-flex align-items-center gap-3">
+        <!-- Mode Toggle -->
+        <div class="mode-switch d-flex align-items-center gap-2">
+          <span class="mode-label text-end" id="modeLabelLeft">🌐 API</span>
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="modeToggle" role="switch" />
+          </div>
+          <span class="mode-label" id="modeLabelRight">💾 Local</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ Main Content ═══ -->
+  <div class="container py-4">
+
+    <!-- ─── Summary Cards Row ─── -->
+    <div class="row g-3 mb-4" id="summaryRow">
+      <div class="col-6 col-lg-3">
+        <div class="summary-card card">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="summary-icon icon-blue"><i class="bi bi-folder"></i></div>
+            <div>
+              <div class="summary-label">โปรเจคทั้งหมด</div>
+              <div class="summary-value" id="totalProjects">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="summary-card card">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="summary-icon icon-yellow"><i class="bi bi-arrow-repeat"></i></div>
+            <div>
+              <div class="summary-label">กำลังดำเนินการ</div>
+              <div class="summary-value" id="inProgressProjects">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="summary-card card">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="summary-icon icon-green"><i class="bi bi-check-circle"></i></div>
+            <div>
+              <div class="summary-label">เสร็จสิ้น</div>
+              <div class="summary-value" id="completedProjects">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="summary-card card">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="summary-icon icon-red"><i class="bi bi-cash-coin"></i></div>
+            <div>
+              <div class="summary-label">งบประมาณคงเหลือ</div>
+              <div class="summary-value" id="budgetRemaining">0 <small>บาท</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Filters Row ─── -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label">ค้นหา</label>
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input type="text" class="form-control" id="searchInput" placeholder="ค้นหาโปรเจค..." />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">สถานะ</label>
+            <select class="form-select" id="filterStatus">
+              <option value="all">ทั้งหมด</option>
+              <option value="planning">วางแผน</option>
+              <option value="in_progress">กำลังดำเนินการ</option>
+              <option value="on_hold">ระงับชั่วคราว</option>
+              <option value="completed">เสร็จสิ้น</option>
+              <option value="cancelled">ยกเลิก</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">ลำดับความสำคัญ</label>
+            <select class="form-select" id="filterPriority">
+              <option value="all">ทั้งหมด</option>
+              <option value="low">ต่ำ</option>
+              <option value="medium">ปานกลาง</option>
+              <option value="high">สูง</option>
+              <option value="critical">วิกฤต</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button class="btn btn-outline-secondary" id="clearFiltersBtn" title="ล้างตัวกรอง">
+              <i class="bi bi-x-circle"></i> ล้าง
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Main Content: Form + Project List ─── -->
+    <div class="row g-4">
+
+      <!-- Left Column: Project Form -->
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle text-primary"></i>
+            <span id="projectFormTitle">สร้างโปรเจคใหม่</span>
+          </div>
+          <div class="card-body">
+            <form id="projectForm" novalidate>
+
+              <!-- Name -->
+              <div class="mb-3">
+                <label for="projectName" class="form-label">ชื่อโปรเจค <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="projectName" placeholder="ชื่อโปรเจค" required maxlength="200" />
+                <div class="invalid-feedback">กรุณากรอกชื่อโปรเจค</div>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-3">
+                <label for="projectDesc" class="form-label">รายละเอียด</label>
+                <textarea class="form-control" id="projectDesc" rows="2" placeholder="รายละเอียดโปรเจค" maxlength="2000"></textarea>
+              </div>
+
+              <!-- Row: Status + Priority -->
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="projectStatus" class="form-label">สถานะ</label>
+                  <select class="form-select" id="projectStatus">
+                    <option value="planning">วางแผน</option>
+                    <option value="in_progress">กำลังดำเนินการ</option>
+                    <option value="on_hold">ระงับชั่วคราว</option>
+                    <option value="completed">เสร็จสิ้น</option>
+                    <option value="cancelled">ยกเลิก</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="projectPriority" class="form-label">ลำดับความสำคัญ</label>
+                  <select class="form-select" id="projectPriority">
+                    <option value="low">ต่ำ</option>
+                    <option value="medium" selected>ปานกลาง</option>
+                    <option value="high">สูง</option>
+                    <option value="critical">วิกฤต</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Category -->
+              <div class="mb-3">
+                <label for="projectCategory" class="form-label">หมวดหมู่</label>
+                <input type="text" class="form-control" id="projectCategory" placeholder="เช่น Web, Mobile, Design" maxlength="50" />
+              </div>
+
+              <!-- Row: Start Date + Due Date -->
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="projectStartDate" class="form-label">วันเริ่มต้น</label>
+                  <input type="date" class="form-control" id="projectStartDate" />
+                </div>
+                <div class="col-6">
+                  <label for="projectDueDate" class="form-label">กำหนดส่ง</label>
+                  <input type="date" class="form-control" id="projectDueDate" />
+                </div>
+              </div>
+
+              <!-- Row: Budget + Progress -->
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="projectBudget" class="form-label">งบประมาณ (บาท)</label>
+                  <input type="number" class="form-control" id="projectBudget" placeholder="0" min="0" step="1" />
+                </div>
+                <div class="col-6">
+                  <label for="projectProgress" class="form-label">ความคืบหน้า (%)</label>
+                  <input type="number" class="form-control" id="projectProgress" placeholder="0" min="0" max="100" step="1" />
+                </div>
+              </div>
+
+              <!-- Tags -->
+              <div class="mb-3">
+                <label class="form-label">แท็ก</label>
+                <div class="tag-input-wrapper" id="tagWrapper">
+                  <div id="tagList" class="d-flex flex-wrap gap-1 align-items-center"></div>
+                  <input type="text" class="tag-input-inline" id="tagInput" placeholder="พิมพ์แล้ว Enter..." maxlength="30" />
+                </div>
+                <div class="form-text">สูงสุด 10 แท็ก, แท็กละไม่เกิน 30 ตัวอักษร</div>
+              </div>
+
+              <!-- Note -->
+              <div class="mb-3">
+                <label for="projectNote" class="form-label">บันทึก</label>
+                <textarea class="form-control" id="projectNote" rows="2" placeholder="บันทึกเพิ่มเติม"></textarea>
+              </div>
+
+              <!-- Hidden Edit ID -->
+              <input type="hidden" id="editProjectId" value="" />
+
+              <!-- Submit -->
+              <button type="submit" class="btn btn-primary w-100" id="projectSubmitBtn">
+                <i class="bi bi-check-lg me-1"></i>
+                <span id="projectSubmitText">สร้างโปรเจค</span>
+              </button>
+
+              <!-- Cancel -->
+              <button type="button" class="btn btn-outline-secondary w-100 mt-2 d-none" id="cancelProjectEdit">
+                <i class="bi bi-x-lg me-1"></i> ยกเลิกการแก้ไข
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Project List -->
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>
+              <i class="bi bi-list-task me-1 text-primary"></i>
+              โปรเจคทั้งหมด
+              <span class="badge bg-primary rounded-pill ms-1" id="projectCount">0</span>
+            </span>
+          </div>
+          <div class="card-body p-0">
+            <div id="projectList">
+              <!-- Rendered by JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state d-none" id="emptyState">
+              <i class="bi bi-inbox"></i>
+              <p class="mb-0">ยังไม่มีโปรเจค</p>
+              <small class="text-muted">เริ่มต้นสร้างโปรเจคแรกของคุณเลย!</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ═══  TASK MANAGEMENT MODAL  ═══ -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-list-check me-1 text-primary"></i>
+            จัดการ Task: <span id="taskModalProjectName" class="fw-bold"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+          <!-- Task Form -->
+          <form id="taskForm" class="border rounded p-3 mb-4 bg-light" novalidate>
+            <h6 class="mb-3" id="taskFormTitle">
+              <i class="bi bi-plus-circle me-1"></i> เพิ่ม Task ใหม่
+            </h6>
+
+            <input type="hidden" id="editTaskId" value="" />
+            <input type="hidden" id="taskProjectId" value="" />
+
+            <div class="mb-2">
+              <label for="taskTitle" class="form-label">ชื่องาน <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="taskTitle" placeholder="ชื่องาน" required maxlength="500" />
+              <div class="invalid-feedback">กรุณากรอกชื่องาน</div>
+            </div>
+
+            <div class="mb-2">
+              <label for="taskDesc" class="form-label">รายละเอียด</label>
+              <textarea class="form-control" id="taskDesc" rows="2" placeholder="รายละเอียดงาน" maxlength="2000"></textarea>
+            </div>
+
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label for="taskStatus" class="form-label">สถานะ</label>
+                <select class="form-select" id="taskStatus">
+                  <option value="todo">รอดำเนินการ</option>
+                  <option value="in_progress">กำลังทำ</option>
+                  <option value="review">รอตรวจสอบ</option>
+                  <option value="done">เสร็จแล้ว</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label for="taskPriority" class="form-label">ลำดับความสำคัญ</label>
+                <select class="form-select" id="taskPriority">
+                  <option value="low">ต่ำ</option>
+                  <option value="medium" selected>ปานกลาง</option>
+                  <option value="high">สูง</option>
+                  <option value="critical">วิกฤต</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label for="taskAssignee" class="form-label">ผู้รับผิดชอบ</label>
+                <input type="text" class="form-control" id="taskAssignee" placeholder="ชื่อ" maxlength="100" />
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label for="taskDueDate" class="form-label">กำหนดส่ง</label>
+              <input type="date" class="form-control" id="taskDueDate" />
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary btn-sm" id="taskSubmitBtn">
+                <i class="bi bi-check-lg"></i> <span id="taskSubmitText">เพิ่ม Task</span>
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="cancelTaskEdit">
+                <i class="bi bi-x-lg"></i> ยกเลิก
+              </button>
+            </div>
+          </form>
+
+          <!-- Task List -->
+          <div id="taskList">
+            <div class="empty-state py-3" id="taskEmptyState">
+              <i class="bi bi-inbox"></i>
+              <p class="mb-0">ยังไม่มี Task</p>
+              <small class="text-muted">เพิ่ม Task แรกโดยใช้ฟอร์มด้านบน</small>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <small class="text-muted" id="taskCountDisplay">0 รายการ</small>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Bootstrap JS ═══ -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ═══ App JS ═══ -->
+  <script src="app.js"></script>
+</body>
+</html>
